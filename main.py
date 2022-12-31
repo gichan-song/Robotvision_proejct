@@ -10,34 +10,16 @@ def findArucoMarkers(img, markerSize = 6, totalMarkers=250, draw=True):
     bboxs, ids, rejected = aruco.detectMarkers(gray, arucoDict, parameters = arucoParam)
     # print(ids)
     if draw:
-        aruco.drawDetectedMarkers(img, bboxs)
+        aruco.drawDetectedMarkers(img, bboxs, ids)
     return [bboxs, ids]
-
-def arucoAug(bbox, id, img, imgAug, drawId = True):
-    tl = bbox[0][0][0], bbox[0][0][1]
-    tr = bbox[0][1][0], bbox[0][1][1]
-    br = bbox[0][2][0], bbox[0][2][1]
-    bl = bbox[0][3][0], bbox[0][3][1]
-    h, w, c = imgAug.shape
-    pts1 = np.array([tl, tr, br, bl])
-    pts2 = np.float32([[0,0], [w,0], [w,h], [0,h]])
-    matrix, _ = cv2.findHomography(pts2, pts1)
-    imgout = cv2.warpPerspective(imgAug, matrix, (img.shape[1], img.shape[0]))
-    cv2.fillConvexPoly(img, pts1.astype(int), (0, 0, 0))
-    imgout = img + imgout
-    return imgout
 cap = cv2.VideoCapture(0)
-imgAug = cv2.imread(r"C:\Users\thdrl\Desktop\r.jpg")
 while True:
     success, img = cap.read()
-    # findArucoMarkers(img)
     arucofound = findArucoMarkers(img)
-    # loop through all the markers and augment each one
-    if len(arucofound[0])!=0:
+     # loop through all the markers and augment each one
+    if  len(arucofound[0])!=0:
         for bbox, id in zip(arucofound[0], arucofound[1]):
-            print(bbox)
-            img = arucoAug(bbox, id, img, imgAug)
-
+            print(bbox, id)
     cv2.imshow('img',img)
     k = cv2.waitKey(30) & 0xff
     if k == 27:
